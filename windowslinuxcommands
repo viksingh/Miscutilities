@@ -1,0 +1,12 @@
+Linux:
+
+tee test{1..100}.ogg < test.ogg >/dev/null
+
+copy test.ogg to 100 files.
+
+Windows Powershell:
+
+$NumArray = (1..1000)
+ForEach($number in $numArray) {
+Copy-Item F:\file\test.ogg -Destination F:\DATA\xrt\HU10.FCIBANK01.010726.2016011$number.DAT
+}
