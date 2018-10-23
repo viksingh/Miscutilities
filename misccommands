@@ -1,0 +1,5 @@
+javac -cp "/usr/sap/../sapjco/*" File.java
+
+jps - check the java process
+
+jstat - get the stats
