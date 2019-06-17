@@ -1,0 +1,48 @@
+$string = 'aoa-dv-testsolution-testproject-aueast-la-001'
+$scope,$env,$solution,$context,$region,$la,$number = $string.split('-')
+
+$scope
+$env
+$context
+$region
+$la
+$number
+
+
+[bool]$scopeCompliant = $false
+[bool]$envCompliant = $false
+[bool]$solutionCompliant = $false
+[bool]$contextCompliant = $false
+[bool]$regionCompliant = $false
+[bool]$laCompliant = $false
+
+
+if( ( $scope -eq "aoa" )  -or ( $scope -eq "ams" ) -or ( $scope -eq "eur" ) -or ( $scope -eq "glb" )) {
+$scopeCompliant = $true
+}
+
+if( ( $envCompliant -eq "sb" )  -or ( $envCompliant -eq "dv" ) -or ( $envCompliant -eq "pp" ) -or ( $envCompliant -eq "pr" )) {
+$envCompliant = $true
+}
+
+if ( $solutionCompliant -match "^[a-zA-Z0-9_]*$" ){
+$solutionCompliant = $true
+}
+
+if ( $contextCompliant -match "^[a-zA-Z0-9_]*$" ){
+$contextCompliant = $true
+}
+
+if ( $regionCompliant -match "^[a-zA-Z0-9_]*$" ){
+$regionCompliant = $true
+}
+
+
+if ( $laCompliant -eq "la" ){
+$laCompliant = $true
+}
+
+
+if (($laCompliant -eq $true) -and ($solutionCompliant -eq $true) -and ($solutionCompliant -eq $true ) -and ($solutionCompliant -eq $true ) -and ($solutionCompliant -eq $true ) -and ($solutionCompliant -eq $true )  ) {
+"Logic App is compliant"
+}
