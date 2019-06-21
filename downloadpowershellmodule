@@ -1,0 +1,18 @@
+# Provide the name of your resource group
+$ResourceGroupName="**********"
+# Provide the name of your Storage account.
+$StorageAccountName="**************"
+# Provide the Storage account key
+$StorageAccountKey = '**********'
+# Provide the name for your Azure Files share.
+$ShareName = "modulecode3" //File share name in the storage account
+# Provide the name for your Directory.
+$DirectoryName = "RunbookOne" //Filename for download
+# Provide the full path to the file you want to upload.
+$FullPathToFile = (Get-Module -ListAvailable RunbookOne).path
+Write-Output 'Path to manifest file' $FullPathToFile
+$FullPathToFile = $FullPathToFile.replace("psd1","psm1")
+Write-Output 'Path to script module file' $FullPathToFile
+$Context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey
+# Upload a file to the directory in the file share
+Set-AzureStorageFileContent -ShareName $ShareName -Source $FullPathToFile -Path $DirectoryName -Context $Context
