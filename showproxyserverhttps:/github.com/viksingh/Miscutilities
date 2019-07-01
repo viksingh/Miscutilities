@@ -1,0 +1,3 @@
+Find proxy server:
+
+netsh winhttp show proxy
