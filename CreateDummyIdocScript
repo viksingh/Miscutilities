@@ -193,6 +193,7 @@ implements ActionListener {
 	
             else if (e.getSource() == processButton) {
             	String outputScript = txtSampleScript.getText().trim();
+            	String outputScriptFinal = "";
             	
             	String[] splited = outputScript.split("\\s+");
             	String fullFileName = splited[splited.length - 1];
@@ -210,9 +211,16 @@ implements ActionListener {
 					while (( currFileName  = br1.readLine()) != null) { 
 					String currentScript = outputScript ;
 					currentScript = currentScript.replaceAll(onlyFileName, currFileName);
-					outputScript = outputScript + ";" + currentScript;
+			
+					if (outputScriptFinal.equals("")){
+						outputScriptFinal = currentScript;
+					}else{
+					outputScriptFinal = outputScriptFinal.concat(";".concat(currentScript));
+					}
+					
+					
 					}					
-					txtOutputScript.setText(outputScript);
+					txtOutputScript.setText(outputScriptFinal);
 					
 					
 //					globalPane.remove(tabbedPane);
