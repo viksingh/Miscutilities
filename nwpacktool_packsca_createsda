@@ -1,0 +1,3 @@
+createsda -n nestle/beans/CallRFCBean -v nestle.com -l nestlebeans -c 5 -type J2EE C:\temp\EAR\CallRFCBean.ear C:\temp\SDA\CallRFCBean.sda
+
+packsca -n NestleBeans -v nestle.com -l nestlebeans -r 6.0 -sp 1 -pl 0 -da C:\temp\SDA C:\temp\SCA\nestlebeans2.sca
