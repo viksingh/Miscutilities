@@ -1,0 +1,242 @@
+let AnalyticsQuery =
+let Source1 = Json.Document(Web.Contents("https://api.loganalytics.io/v1/workspaces/1ad7460e-546c-4786-a83e-42d01cf4e766/query", 
+[Query=[#"query"="AzureDiagnostics
+| where Category == ""WorkflowRuntime""
+| where OperationName == ""Microsoft.Logic/workflows/workflowRunCompleted""
+| join kind = rightouter
+(
+    AzureDiagnostics
+    | where Category == ""WorkflowRuntime""
+    | where OperationName == ""Microsoft.Logic/workflows/workflowRunStarted""
+    | where resource_runId_s in (( AzureDiagnostics
+    | where Category == ""WorkflowRuntime""
+    | where OperationName == ""Microsoft.Logic/workflows/workflowTriggerCompleted""
+    | project resource_runId_s ))
+    | project WorkflowStartStatus=status_s, WorkflowNameFromInnerQuery=resource_workflowName_s, WorkflowIdFromInnerQuery=workflowId_s, resource_runId_s
+)
+on resource_runId_s
+| extend WorkflowStatus=iff(isnotempty(status_s), status_s, WorkflowStartStatus)
+| extend WorkflowName=iff(isnotempty(resource_workflowName_s), resource_workflowName_s, WorkflowNameFromInnerQuery)
+| extend WorkflowId=iff(isnotempty(workflowId_s), workflowId_s, WorkflowIdFromInnerQuery)
+| summarize Count=count() by WorkflowId, WorkflowName, WorkflowStatus
+",#"x-ms-app"="OmsAnalyticsPBI",#"timespan"="P30D",#"prefer"="ai.response-thinning=true"],Timeout=#duration(0,0,4,0)])),
+TypeMap1 = #table(
+{ "AnalyticsTypes", "Type" }, 
+{ 
+{ "string",   Text.Type },
+{ "int",      Int32.Type },
+{ "long",     Int64.Type },
+{ "real",     Double.Type },
+{ "timespan", Duration.Type },
+{ "datetime", DateTimeZone.Type },
+{ "bool",     Logical.Type },
+{ "guid",     Text.Type },
+{ "dynamic",  Text.Type }
+}),
+
+DataTable1 = Source1[tables]{0},
+Columns1 = Table.FromRecords(DataTable1[columns]),
+ColumnsWithType1 = Table.Join(Columns1, {"type"}, TypeMap1 , {"AnalyticsTypes"}),
+Rows1 = Table.FromRows(DataTable1[rows], Columns1[name]), 
+Table1 = Table.TransformColumnTypes(Rows1, Table.ToList(ColumnsWithType1, (c) => { c{0}, c{3}})),
+
+Source2 = Json.Document(Web.Contents("https://api.loganalytics.io/v1/workspaces/3dfc39ff-b520-4a26-9d15-7a479eb15f43/query", 
+[Query=[#"query"="AzureDiagnostics
+| where Category == ""WorkflowRuntime""
+| where OperationName == ""Microsoft.Logic/workflows/workflowRunCompleted""
+| join kind = rightouter
+(
+    AzureDiagnostics
+    | where Category == ""WorkflowRuntime""
+    | where OperationName == ""Microsoft.Logic/workflows/workflowRunStarted""
+    | where resource_runId_s in (( AzureDiagnostics
+    | where Category == ""WorkflowRuntime""
+    | where OperationName == ""Microsoft.Logic/workflows/workflowTriggerCompleted""
+    | project resource_runId_s ))
+    | project WorkflowStartStatus=status_s, WorkflowNameFromInnerQuery=resource_workflowName_s, WorkflowIdFromInnerQuery=workflowId_s, resource_runId_s
+)
+on resource_runId_s
+| extend WorkflowStatus=iff(isnotempty(status_s), status_s, WorkflowStartStatus)
+| extend WorkflowName=iff(isnotempty(resource_workflowName_s), resource_workflowName_s, WorkflowNameFromInnerQuery)
+| extend WorkflowId=iff(isnotempty(workflowId_s), workflowId_s, WorkflowIdFromInnerQuery)
+| summarize Count=count() by WorkflowId, WorkflowName, WorkflowStatus
+",#"x-ms-app"="OmsAnalyticsPBI",#"timespan"="P30D",#"prefer"="ai.response-thinning=true"],Timeout=#duration(0,0,4,0)])),
+TypeMap2 = #table(
+{ "AnalyticsTypes", "Type" }, 
+{ 
+{ "string",   Text.Type },
+{ "int",      Int32.Type },
+{ "long",     Int64.Type },
+{ "real",     Double.Type },
+{ "timespan", Duration.Type },
+{ "datetime", DateTimeZone.Type },
+{ "bool",     Logical.Type },
+{ "guid",     Text.Type },
+{ "dynamic",  Text.Type }
+}),
+DataTable2 = Source2[tables]{0},
+Columns2 = Table.FromRecords(DataTable2[columns]),
+ColumnsWithType2 = Table.Join(Columns2, {"type"}, TypeMap2 , {"AnalyticsTypes"}),
+Rows2 = Table.FromRows(DataTable2[rows], Columns2[name]), 
+Table2 = Table.TransformColumnTypes(Rows2, Table.ToList(ColumnsWithType2, (c) => { c{0}, c{3}})),
+
+
+Source3 = Json.Document(Web.Contents("https://api.loganalytics.io/v1/workspaces/4d11b824-6e21-4507-adb0-380263050f45/query", 
+[Query=[#"query"="AzureDiagnostics
+| where Category == ""WorkflowRuntime""
+| where OperationName == ""Microsoft.Logic/workflows/workflowRunCompleted""
+| join kind = rightouter
+(
+    AzureDiagnostics
+    | where Category == ""WorkflowRuntime""
+    | where OperationName == ""Microsoft.Logic/workflows/workflowRunStarted""
+    | where resource_runId_s in (( AzureDiagnostics
+    | where Category == ""WorkflowRuntime""
+    | where OperationName == ""Microsoft.Logic/workflows/workflowTriggerCompleted""
+    | project resource_runId_s ))
+    | project WorkflowStartStatus=status_s, WorkflowNameFromInnerQuery=resource_workflowName_s, WorkflowIdFromInnerQuery=workflowId_s, resource_runId_s
+)
+on resource_runId_s
+| extend WorkflowStatus=iff(isnotempty(status_s), status_s, WorkflowStartStatus)
+| extend WorkflowName=iff(isnotempty(resource_workflowName_s), resource_workflowName_s, WorkflowNameFromInnerQuery)
+| extend WorkflowId=iff(isnotempty(workflowId_s), workflowId_s, WorkflowIdFromInnerQuery)
+| summarize Count=count() by WorkflowId, WorkflowName, WorkflowStatus
+",#"x-ms-app"="OmsAnalyticsPBI",#"timespan"="P30D",#"prefer"="ai.response-thinning=true"],Timeout=#duration(0,0,4,0)])),
+TypeMap3 = #table(
+{ "AnalyticsTypes", "Type" }, 
+{ 
+{ "string",   Text.Type },
+{ "int",      Int32.Type },
+{ "long",     Int64.Type },
+{ "real",     Double.Type },
+{ "timespan", Duration.Type },
+{ "datetime", DateTimeZone.Type },
+{ "bool",     Logical.Type },
+{ "guid",     Text.Type },
+{ "dynamic",  Text.Type }
+}),
+DataTable3 = Source3[tables]{0},
+Columns3 = Table.FromRecords(DataTable3[columns]),
+ColumnsWithType3 = Table.Join(Columns3, {"type"}, TypeMap3 , {"AnalyticsTypes"}),
+Rows3 = Table.FromRows(DataTable3[rows], Columns3[name]), 
+Table3 = Table.TransformColumnTypes(Rows3, Table.ToList(ColumnsWithType3, (c) => { c{0}, c{3}})),
+
+FinalSource = Table.Combine({Table1,Table2,Table3})
+
+in
+FinalSource,
+    #"Added Custom" = Table.AddColumn(AnalyticsQuery, "IsNameCompliant", each 
+
+if  (
+
+(    Text.Split([WorkflowName],"-"){0} = "nbgd"
+ or Text.Split([WorkflowName],"-"){0} = "cwaf"
+ or Text.Split([WorkflowName],"-"){0} = "esaf"
+ or Text.Split([WorkflowName],"-"){0} = "nchn"
+ or Text.Split([WorkflowName],"-"){0} = "nind"
+ or Text.Split([WorkflowName],"-"){0} = "incn"
+ or Text.Split([WorkflowName],"-"){0} = "nidn"
+ or Text.Split([WorkflowName],"-"){0} = "njpn"
+ or Text.Split([WorkflowName],"-"){0} = "nkor"
+ or Text.Split([WorkflowName],"-"){0} = "mysg"
+ or Text.Split([WorkflowName],"-"){0} = "ocea"
+ or Text.Split([WorkflowName],"-"){0} = "npak"
+ or Text.Split([WorkflowName],"-"){0} = "nphl"
+ or Text.Split([WorkflowName],"-"){0} = "nlka"
+ or Text.Split([WorkflowName],"-"){0} = "ntwn"
+ or Text.Split([WorkflowName],"-"){0} = "nvnm"
+ or Text.Split([WorkflowName],"-"){0} = "adrt"
+ or Text.Split([WorkflowName],"-"){0} = "naut"
+ or Text.Split([WorkflowName],"-"){0} = "belu"
+ or Text.Split([WorkflowName],"-"){0} = "nbgr"
+ or Text.Split([WorkflowName],"-"){0} = "czsk"
+ or Text.Split([WorkflowName],"-"){0} = "nfra"
+ or Text.Split([WorkflowName],"-"){0} = "ndeu"
+ or Text.Split([WorkflowName],"-"){0} = "ngrc"
+ or Text.Split([WorkflowName],"-"){0} = "nhun"
+ or Text.Split([WorkflowName],"-"){0} = "nibr"
+ or Text.Split([WorkflowName],"-"){0} = "nisr"
+ or Text.Split([WorkflowName],"-"){0} = "nita"
+ or Text.Split([WorkflowName],"-"){0} = "nmhg"
+ or Text.Split([WorkflowName],"-"){0} = "meas"
+ or Text.Split([WorkflowName],"-"){0} = "nord"
+ or Text.Split([WorkflowName],"-"){0} = "neaf"
+ or Text.Split([WorkflowName],"-"){0} = "npol"
+ or Text.Split([WorkflowName],"-"){0} = "nrou"
+ or Text.Split([WorkflowName],"-"){0} = "nrus"
+ or Text.Split([WorkflowName],"-"){0} = "nche"
+ or Text.Split([WorkflowName],"-"){0} = "ntur"
+ or Text.Split([WorkflowName],"-"){0} = "ukie"
+ or Text.Split([WorkflowName],"-"){0} = "nukr"
+ or Text.Split([WorkflowName],"-"){0} = "nbra"
+ or Text.Split([WorkflowName],"-"){0} = "nzzz"
+ or Text.Split([WorkflowName],"-"){0} = "nzzc"
+ or Text.Split([WorkflowName],"-"){0} = "nchl"
+ or Text.Split([WorkflowName],"-"){0} = "ncol"
+ or Text.Split([WorkflowName],"-"){0} = "ndom"
+ or Text.Split([WorkflowName],"-"){0} = "necu"
+ or Text.Split([WorkflowName],"-"){0} = "njam"
+ or Text.Split([WorkflowName],"-"){0} = "nmex"
+ or Text.Split([WorkflowName],"-"){0} = "pebo"
+ or Text.Split([WorkflowName],"-"){0} = "npxr"
+ or Text.Split([WorkflowName],"-"){0} = "ntto"
+ or Text.Split([WorkflowName],"-"){0} = "nven"
+ or Text.Split([WorkflowName],"-"){0} = "ncix"
+ or Text.Split([WorkflowName],"-"){0} = "nusa"
+ or Text.Split([WorkflowName],"-"){0} = "paoa"
+ or Text.Split([WorkflowName],"-"){0} = "Prjp"
+ or Text.Split([WorkflowName],"-"){0} = "npfr"
+ or Text.Split([WorkflowName],"-"){0} = "npde"
+ or Text.Split([WorkflowName],"-"){0} = "npui"
+ or Text.Split([WorkflowName],"-"){0} = "nwuk"
+ or Text.Split([WorkflowName],"-"){0} = "nwfr"
+ or Text.Split([WorkflowName],"-"){0} = "cpce"
+ or Text.Split([WorkflowName],"-"){0} = "pemn"
+ or Text.Split([WorkflowName],"-"){0} = "prui"
+ or Text.Split([WorkflowName],"-"){0} = "cpuk"
+ or Text.Split([WorkflowName],"-"){0} = "cppl"
+ or Text.Split([WorkflowName],"-"){0} = "pltm"
+ or Text.Split([WorkflowName],"-"){0} = "cpla"
+ or Text.Split([WorkflowName],"-"){0} = "dpus"
+ or Text.Split([WorkflowName],"-"){0} = "nnus"
+ or Text.Split([WorkflowName],"-"){0} = "npca"
+ or Text.Split([WorkflowName],"-"){0} = "npus"
+ or Text.Split([WorkflowName],"-"){0} = "nwna"
+ or Text.Split([WorkflowName],"-"){0} = "hsus"
+ or Text.Split([WorkflowName],"-"){0} = "prhq"
+ or Text.Split([WorkflowName],"-"){0} = "nnhq"
+ or Text.Split([WorkflowName],"-"){0} = "nwhq"
+ or Text.Split([WorkflowName],"-"){0} = "nstr"
+ or Text.Split([WorkflowName],"-"){0} = "cphq"
+ or Text.Split([WorkflowName],"-"){0} = "hshq"
+ or Text.Split([WorkflowName],"-"){0} = "nesp"
+ or Text.Split([WorkflowName],"-"){0} = "mseb"
+ or Text.Split([WorkflowName],"-"){0} = "naoa"
+ or Text.Split([WorkflowName],"-"){0} = "nams"
+ or Text.Split([WorkflowName],"-"){0} = "emna"
+ or Text.Split([WorkflowName],"-"){0} = "ctrl"
+ or Text.Split([WorkflowName],"-"){0} = "glbl" 
+)
+and
+(
+   Text.Split([WorkflowName],"-"){1} = "dv" 
+or Text.Split([WorkflowName],"-"){1} = "rt"
+or Text.Split([WorkflowName],"-"){1} = "pp"
+or Text.Split([WorkflowName],"-"){1} = "ts"
+or Text.Split([WorkflowName],"-"){1} = "in"
+or Text.Split([WorkflowName],"-"){1} = "sb"
+or Text.Split([WorkflowName],"-"){1} = "it"
+or Text.Split([WorkflowName],"-"){1} = "pr")
+    )
+and
+(
+   Text.Split([WorkflowName],"-"){3} = "lga" 
+or   Text.Split([WorkflowName],"-"){4} = "lga" 
+)
+
+
+ then true else false
+
+)
+in
+    #"Added Custom"
