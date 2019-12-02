@@ -1,0 +1,230 @@
+package com.saki.asx;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Type;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+
+import org.apache.commons.io.IOUtils;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+
+
+
+public class ExtractASXData {
+	public static String sep = " | ";
+	public static String sepData = " ** ";
+	
+    public static void main(String[] args) throws IOException {
+ 
+    	 String csvFile = "/temp/asxdata/comp.csv";
+         BufferedReader br = null;
+         String line = "";
+         String cvsSplitBy = ",";
+			int i = 0;
+
+         
+         try {
+        	 
+
+             br = new BufferedReader(new FileReader(csvFile));
+             while ((line = br.readLine()) != null) {
+
+
+            	 float total_price_5 = 0;
+            	 float total_price_10 = 0;
+            	 float total_price_20 = 0;
+            	 float total_price_50 = 0;
+            	 float total_price_150 = 0;
+            	 float total_price_200 = 0;
+            	 
+            	 float moving_avg_5 = 0;
+            	 float moving_avg_10 = 0;
+            	 float moving_avg_20 = 0;
+            	 float moving_avg_50 = 0;
+            	 float moving_avg_150 = 0;
+            	 float moving_avg_200 = 0;
+            	 
+            	 float price_100 = 0;
+            	 float growth_percent_100 = 0;
+
+
+            	 int total_volume_200 = 0;
+            	 int total_volume_150 = 0;
+            	 int total_volume_50 = 0;
+            	 int total_volume_20 = 0;
+            	 int total_volume_10 = 0;
+            	 int total_volume_5 = 0;
+
+            	 
+            	 int avg_volume_200 = 0;
+            	 int avg_volume_150 = 0;
+            	 int avg_volume_50 = 0;
+            	 int avg_volume_20 = 0;
+            	 int avg_volume_10 = 0;
+            	 int avg_volume_5 = 0;
+
+            	 
+                 // use comma as separator
+                 String[] company = line.split(cvsSplitBy);
+                 String compASXcode = company[1];
+                 
+                 String compCodeClean = compASXcode.replaceAll("\"","");
+
+
+                 
+                 String compURL = "https://www.asx.com.au/asx/1/share/"+compCodeClean+"/prices?interval=daily&count=150" ;
+
+
+                 
+             	try {
+					URL url = new URL(compURL);
+					URLConnection con = url.openConnection();
+					InputStream in = con.getInputStream();
+					String encoding = con.getContentEncoding();
+					encoding = encoding == null ? "UTF-8" : encoding;
+					String body = IOUtils.toString(in, encoding);
+					String toProcess = body.replace("\"data\":","").replace("{[","[").replace("]}","]");
+					
+					 Gson gson=new Gson();
+
+					 Type CompanyCodeListType = new TypeToken<ArrayList<CompanyData>>(){}.getType();
+					 
+					 ArrayList<CompanyData> compData = new ArrayList<CompanyData>(); 
+					 
+					 compData = gson.fromJson(toProcess, CompanyCodeListType);  	
+					 
+	                 DecimalFormat df = new DecimalFormat();
+	                 df.setMaximumFractionDigits(2);
+	                 
+					CompanyData todayData = new CompanyData( );
+					
+					 int j = 0;
+					  for (  CompanyData company1 : compData) 
+						  
+					  { 
+						  	if (j++ == 0) {
+								todayData = company1;
+								
+
+	
+						  	}
+
+						  	if ( j < 6 ) { 
+								  total_price_5 += company1.getClose_price();
+								  total_volume_5 += company1.getVolume();
+						  	}  
+						  	if ( j < 11 ) { 
+								  total_price_10 += company1.getClose_price();
+								  total_volume_10 += company1.getVolume();
+						  	}  
+
+						  	
+						  	if ( j < 21 ) { 
+								  total_price_20 += company1.getClose_price();
+								  total_volume_20 += company1.getVolume();
+						  	}  
+
+						  	if ( j < 51 ) { 
+								  total_price_50 += company1.getClose_price();
+								  total_volume_50 += company1.getVolume();
+
+						  	}  
+						  	
+						  	if ( j == 100 ) { 
+						  		price_100 = company1.getClose_price();
+						  	}
+						  	
+						  	if ( j < 151 ) { 
+								  total_price_150 += company1.getClose_price();
+								  total_volume_150 += company1.getVolume();
+
+						  	}  
+						  	
+						  	if ( j < 201 ) { 
+								  total_price_200 += company1.getClose_price();
+								  total_volume_200 += company1.getVolume();
+
+						  	}  
+						  	
+					  
+					  }
+
+					  moving_avg_5 = total_price_5 / 5;
+					  moving_avg_10 = total_price_10 / 10;
+					  moving_avg_20 = total_price_20 / 20;
+					  moving_avg_50 = total_price_50 / 50;
+					  moving_avg_150 = total_price_150 / 150;
+					  moving_avg_200 = total_price_200 / 200;
+					  
+					  growth_percent_100 = ( ( todayData.getClose_price() - price_100 ) / price_100 ) * 100;
+					  
+					  avg_volume_200 = total_volume_200 / 200;
+					  avg_volume_150 = total_volume_150 / 150;
+					  avg_volume_50 = total_volume_50 / 50;
+					  avg_volume_20 = total_volume_20 / 20;
+					  avg_volume_10 = total_volume_10 / 10;
+					  avg_volume_5 = total_volume_5 / 5;
+					  
+
+					  if (todayData.getVolume() > 100000  &&  todayData.getClose_price() > 2 ) {	
+      			  
+      			  if (
+// Price > 150 and 200 day avg
+// 150 > 200
+// 200 day avg is up ??      					  
+      					  
+      					   ( moving_avg_50  < todayData.getClose_price() )
+      					 &&  ( moving_avg_10  < todayData.getClose_price() )
+    	      			 &&  ( moving_avg_5  < todayData.getClose_price() )
+    	      	      	 &&  ( moving_avg_20  < todayData.getClose_price() )
+    	      	      	 &&  ( moving_avg_50  < todayData.getClose_price() )
+    	      	      	 &&  ( moving_avg_150  < todayData.getClose_price() )
+    	      	      	 &&  ( moving_avg_200  < todayData.getClose_price() )
+
+    	      	      					 && (avg_volume_5 > avg_volume_10 )
+		       							   && (avg_volume_5 > avg_volume_20 )
+		       							   && (avg_volume_5 > avg_volume_50 )
+		       							   && (avg_volume_5 > avg_volume_150 )
+		       							   && (avg_volume_5 > avg_volume_200 )
+		       							   && ( growth_percent_100 > 30 )
+      							   
+      							   )
+      					   {
+					  
+					  System.out.println( df.format( growth_percent_100 ) + sep + todayData.getCode() + sep + todayData.getClose_date() + sepData + todayData.getChange_in_percent() + sepData + df.format ( moving_avg_200 ) + sep + df.format (moving_avg_150 )+ sep + df.format ( moving_avg_50 )+ sep + df.format ( moving_avg_20 ) + sep +  df.format ( moving_avg_10 ) + sep  + df.format ( moving_avg_5 )+ sep +  df.format ( todayData.getClose_price() )+ sepData +  avg_volume_200 +  sep +   avg_volume_150 +  sep +  avg_volume_50 +  sep +  avg_volume_20 +  sep+  avg_volume_10 +  sep+  avg_volume_5  +   sep + todayData.getVolume()   );
+      		  } }
+					
+				} catch (Exception e) {
+//				e.printStackTrace();
+				}                 
+
+             }
+
+         } catch (FileNotFoundException e) {
+         } catch (IOException e) {
+         } finally {
+             if (br != null) {
+                 try {
+                     br.close();
+                 } catch (IOException e) {
+                 }
+             }
+         }    	
+    	
+    	
+    	
+    	
+    	
+
+    	
+}
+}
