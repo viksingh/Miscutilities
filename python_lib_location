@@ -1,0 +1,5 @@
+$ python # open python
+
+import pygame # import a module 
+
+pygame # get the location
