@@ -1,0 +1,55 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Run_query_and_list_results": {
+                "inputs": {
+                    "body": "AzureDiagnostics\n| where Category == \"WorkflowRuntime\"\n| where OperationName == \"Microsoft.Logic/workflows/workflowRunCompleted\"\n| join kind = rightouter\n(\n    AzureDiagnostics\n    | where Category == \"WorkflowRuntime\"\n    | where OperationName == \"Microsoft.Logic/workflows/workflowRunStarted\"\n    | where resource_runId_s in (( AzureDiagnostics\n    | where Category == \"WorkflowRuntime\"\n    | where OperationName == \"Microsoft.Logic/workflows/workflowTriggerCompleted\"\n    | project resource_runId_s ))\n    | project WorkflowStartStatus=status_s, WorkflowNameFromInnerQuery=resource_workflowName_s, WorkflowIdFromInnerQuery=workflowId_s, resource_runId_s\n)\non resource_runId_s\n| extend WorkflowStatus=iff(isnotempty(status_s), status_s, WorkflowStartStatus)\n| extend WorkflowName=iff(isnotempty(resource_workflowName_s), resource_workflowName_s, WorkflowNameFromInnerQuery)\n| extend WorkflowId=iff(isnotempty(workflowId_s), workflowId_s, WorkflowIdFromInnerQuery)\n| summarize Count=count() by WorkflowId, WorkflowName, WorkflowStatus\n",
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureloganalytics']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/queryOms",
+                    "queries": {
+                        "resourcegroups": "bsimgd-dv-glb-eun-rg-001",
+                        "subscriptions": "236294ab-fc3d-4115-b101-275c300e1546",
+                        "workspaces": "bsi-adf-logs"
+                    }
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "method": "GET",
+                    "schema": {}
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "azureloganalytics": {
+                    "connectionId": "/subscriptions/236294ab-fc3d-4115-b101-275c300e1546/resourceGroups/bsimgd-dv-glb-eun-rg-001/providers/Microsoft.Web/connections/azureloganalytics-2",
+                    "connectionName": "azureloganalytics-2",
+                    "id": "/subscriptions/236294ab-fc3d-4115-b101-275c300e1546/providers/Microsoft.Web/locations/northeurope/managedApis/azureloganalytics"
+                }
+            }
+        }
+    }
+}
