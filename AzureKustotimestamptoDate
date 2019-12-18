@@ -1,0 +1,22 @@
+
+AzureDiagnostics
+| where Category == "WorkflowRuntime"
+| where OperationName == "Microsoft.Logic/workflows/workflowRunCompleted"
+| join kind = rightouter
+(
+    AzureDiagnostics
+    | where TimeGenerated > ago(2d)
+    | where Category == "WorkflowRuntime"
+    | where OperationName == "Microsoft.Logic/workflows/workflowRunStarted"
+    | where resource_runId_s in (( AzureDiagnostics
+    | where Category == "WorkflowRuntime"
+    | where OperationName == "Microsoft.Logic/workflows/workflowTriggerCompleted"
+    | project resource_runId_s ))
+    | project WorkflowStartStatus=status_s, WorkflowNameFromInnerQuery=resource_workflowName_s, resource_runId_s ,WorkflowDate=startofday(startTime_t)
+)
+on resource_runId_s
+| extend WorkflowStatus=iff(isnotempty(status_s), status_s, WorkflowStartStatus)
+| extend WorkflowName=iff(isnotempty(resource_workflowName_s), resource_workflowName_s, WorkflowNameFromInnerQuery)
+| extend WorkflowDate = WorkflowDate
+| summarize Count=count() by  WorkflowName, WorkflowStatus , WorkflowDate 
+| sort by WorkflowName , WorkflowStatus , WorkflowDate
