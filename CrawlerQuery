@@ -1,0 +1,13 @@
+let
+    Source = DocumentDB.Contents("https://bsimgd-pr-glb-eun-cosmo-db-001.documents.azure.com:443/"),
+    AzureCrawler = Source{[id="AzureCrawler"]}[Collections],
+    AzureCrawler_LogicAppsList = AzureCrawler{[db_id="AzureCrawler",id="LogicAppsList"]}[Documents],
+    #"Expanded Document" = Table.ExpandRecordColumn(AzureCrawler_LogicAppsList, "Document", {"TenantId", "CreatedTime", "SubscriptionId", "Actions", "ResourceId", "Connections", "IsCompliant", "Name", "IsNameCompliant", "IsConnectorsCompliant", "Tags", "ResourceGroupName", "LastUpdate", "SubscriptionName", "State", "History", "id", "FirstDetectionDate", "Date", "IsTagsCompliant", "TagsCompliancePercentage", "ConnectionsType","IsDeleted"}, {"TenantId", "CreatedTime", "SubscriptionId", "Actions", "ResourceId", "Connections", "IsCompliant", "Name", "IsNameCompliant", "IsConnectorsCompliant", "Tags", "ResourceGroupName", "LastUpdate", "SubscriptionName", "State", "History", "id", "FirstDetectionDate", "Date", "IsTagsCompliant", "TagsCompliancePercentage", "ConnectionsType","IsDeleted"}),
+    #"NotDeletedDocuments" = Table.SelectRows(#"Expanded Document",each([IsDeleted]<>"True")),
+    #"Expanded Document.ConnectionsType" = Table.ExpandListColumn(#"NotDeletedDocuments", "ConnectionsType"),
+    #"Changed Type" = Table.TransformColumnTypes(#"Expanded Document.ConnectionsType",{{"Date", type datetime}, {"FirstDetectionDate", type datetime}}),
+    #"Expanded Tags" = Table.ExpandRecordColumn(#"Changed Type", "Tags", {"CostCenter", "TechnicalOwner"}, {"Tags.CostCenter", "Tags.TechnicalOwner"}),
+    #"Changed Type1" = Table.TransformColumnTypes(#"Expanded Tags",{{"CreatedTime", type datetime}}),
+    #"Changed Type2" = Table.TransformColumnTypes(#"Changed Type1",{{"CreatedTime", type date}})
+in
+    #"Changed Type2"
