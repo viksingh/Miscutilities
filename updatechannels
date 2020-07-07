@@ -1,0 +1,90 @@
+package com.demo.processChannels;
+
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.ws.BindingProvider;
+
+
+
+import com.sap.xi.basis.*;
+
+public class ProcessChannels {
+
+	  	private static String apiURL = "/CommunicationChannelInService/CommunicationChannelInImplBean?wsdl=binding&mode=ws_policy";
+	     private String serverPort = "host:port";
+	     private String user = "user";
+	     private String password = "dddd";
+	     private String url = new String();
+	     private CommunicationChannelIn port;	
+	     
+	     public ProcessChannels() {
+	          setURL(serverPort);
+	          try {
+	               port = getPort();
+	          }
+	          catch (Exception e) {
+	               e.printStackTrace();
+	          }
+	     }	     
+	
+	     private CommunicationChannelIn getPort() throws Exception{
+	          CommunicationChannelIn port = null;
+	          try {
+	              CommunicationChannelInService service = null;
+	              service = new CommunicationChannelInService();
+                 port = (CommunicationChannelIn) service.getCommunicationChannelIn_Port();
+	              BindingProvider bp = (BindingProvider)port;
+	              bp.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, user);
+	              bp.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, password);
+	              if (url.length() != 0)
+	                   bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, url);
+	          }
+	          catch (Exception ex){
+	               ex.printStackTrace();
+	          }
+	          return port;
+	     }		     
+	     
+	     private void setURL(String serverPort) {
+	          if (serverPort == null)
+	               return;
+	          else
+	               this.url = this.url.concat("http://").concat(serverPort).concat(apiURL);
+	     }
+
+	     
+	     public List query() {
+    	 CommunicationChannelID value = new CommunicationChannelID();
+    	 value.setChannelID("*");
+    	 value.setComponentID("*");
+         CommunicationChannelQueryIn queryIn = new CommunicationChannelQueryIn();
+			queryIn.setCommunicationChannelID(value);
+	          CommunicationChannelQueryOut queryOut = port.query(queryIn);
+	          List lMsgHdr = queryOut.getCommunicationChannelID();
+	          return lMsgHdr;
+	     }	     
+	     
+	     
+     
+	     
+	     
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		ProcessChannels test = new ProcessChannels();
+		ArrayList<CommunicationChannelID> listChannels = new ArrayList<CommunicationChannelID>();
+		
+		listChannels = (ArrayList<CommunicationChannelID>) test.query();
+
+        int i = 0;
+        for (CommunicationChannelID channelInfo : listChannels){
+      	  System.out.println( i++ + "  "+ channelInfo.getComponentID() + " - " + channelInfo.getChannelID()+"   "  );
+        }
+
+		
+
+	}
+
+}
