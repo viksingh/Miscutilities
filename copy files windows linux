@@ -6,6 +6,10 @@ for i in {1..100}; do cp filex.DAT /path/"filename_$i.DAT" ; done
 
 copy test.ogg to 100 files.
 
+AIX:
+
+for i in {1..100} ; do cp test.txt "test$i.dat" ; done
+
 Windows Powershell:
 
 $NumArray = (1..1000)
